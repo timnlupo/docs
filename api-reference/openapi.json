@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://huly-api.deeptune.com/v1"
+      "url": "https://api.deeptune.ai/v1"
     }
   ],
   "tags": [
