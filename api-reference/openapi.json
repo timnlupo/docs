@@ -66,6 +66,93 @@
         }
       }
     },
+    "/tests/{app_id}": {
+      "get": {
+        "tags": ["Tests & Grading"],
+        "operationId": "getTests",
+        "summary": "Get Tests",
+        "description": "Get tests for a specific app",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the app to get tests for"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of tests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "num_tests",
+                    "num_easy",
+                    "num_medium",
+                    "num_hard",
+                    "tests"
+                  ],
+                  "properties": {
+                    "num_tests": {
+                      "type": "integer",
+                      "description": "Total number of tests"
+                    },
+                    "num_easy": {
+                      "type": "integer",
+                      "description": "Number of easy difficulty tests"
+                    },
+                    "num_medium": {
+                      "type": "integer",
+                      "description": "Number of medium difficulty tests"
+                    },
+                    "num_hard": {
+                      "type": "integer",
+                      "description": "Number of hard difficulty tests"
+                    },
+                    "tests": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "test_id",
+                          "test_name",
+                          "instructions",
+                          "difficulty"
+                        ],
+                        "properties": {
+                          "test_id": {
+                            "type": "string",
+                            "description": "Unique identifier for the test"
+                          },
+                          "test_name": {
+                            "type": "string",
+                            "description": "Human readable name of the test"
+                          },
+                          "instructions": {
+                            "type": "string",
+                            "description": "Instructions for completing the test"
+                          },
+                          "difficulty": {
+                            "type": "string",
+                            "enum": ["easy", "medium", "hard"],
+                            "description": "Difficulty level of the test"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/tests/grade": {
       "post": {
         "tags": ["Tests & Grading"],
