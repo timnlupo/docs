@@ -1,0 +1,67 @@
+---
+title: "Huly (Slack/Jira Alternative)"
+description: "All-in-one team collaboration platform."
+---
+
+## Overview
+
+[Huly](https://huly.io) is an open-source platform that serves as a comprehensive replacement for tools like Linear, Jira, Slack, and Notion. It provides teams with a unified workspace for project management, communication, and documentation.
+
+<Frame>
+  <img
+    src="/images/huly-chat.png"
+    alt="Huly Chat Interface"
+    style={{ borderRadius: "8px" }}
+  />
+</Frame>
+
+<Frame>
+  <img
+    src="/images/huly-tracker.png"
+    alt="Huly Task Tracker"
+    style={{ borderRadius: "8px" }}
+  />
+</Frame>
+
+## Accessing Huly
+
+You can access Huly at http://huly.deeptune.ai. We’ve provisioned one hundred identical test accounts with the following logins:
+
+```
+email: [0-99]@deeptune.com
+password: password
+```
+
+Each user is distinct and in identical, parallel environments. This means any change in one user will not impact the environments of the other uses.
+
+## Resetting Huly
+
+Each account can be reset to the original state at any time. See the [reset API reference](/api-reference/accounts) for more information.
+
+## Huly Test Suite
+
+Deeptune comes with tests and grading specific to Huly. All tests assume the account is in the original workspace state, so be sure to reset before running any tests. Tests can also be graded, see the [grading API reference](/api-reference/tests-&-grading) for more information.
+
+```json
+[
+  {
+    "id": "test_0",
+    "test": "Create a new employee named 'Alice Li', their email is 'alice@deeptune.ai', their linkedIn is 'linkedin.com/in/aliceDeeptune'.",
+    "answer": "Go to Contacts > Employee > New Employee. Create an employee named Alice Li, add email, add social link for linkedin."
+    "difficulty": "easy"
+  },
+  {
+    "id": "test_1",
+    "test": "Star #announcements.",
+    "answer": "Go to Chat, hover over announcements, click the ... and star channel."
+    "difficulty": "easy"
+  },
+  {
+    "id": "test_2",
+    "test": "Add a new company to my contacts called 'Acme Co.'",
+    "answer": "Go to Contacts > Company > New Company and add a company called 'Acme Co.'",
+    "difficulty": "easy"
+  },
+  ...
+]
+```

@@ -1,90 +1,60 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
-    "license": {
-      "name": "MIT"
-    },
-    "version": "1.0.0"
+    "title": "Deeptune API",
+    "description": "API for resetting test environments and grading agent tasks",
+    "version": "0.0.1"
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
+      "url": "https://huly-api.deeptune.com/v1"
     }
   ],
-  "security": [
+  "tags": [
     {
-      "bearerAuth": []
+      "name": "Accounts",
+      "description": "Endpoints for resetting test environments"
+    },
+    {
+      "name": "Tests & Grading",
+      "description": "Endpoints for grading and checking test status"
     }
   ],
   "paths": {
-    "/plants": {
-      "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
+    "/accounts/reset": {
+      "post": {
+        "tags": ["Accounts"],
+        "operationId": "resetAccount",
+        "summary": "Reset Account",
+        "description": "Reset a test environment to its original state",
+        "requestBody": {
+          "description": "Account email and app ID to reset",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "app_id"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "description": "Test account email in format [0-99]@deeptune.com"
+                  },
+                  "app_id": {
+                    "type": "string",
+                    "description": "ID of the app environment to reset"
                   }
                 }
               }
             }
-          },
-          "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
           }
-        }
-      },
-      "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          },
-          "required": true
         },
         "responses": {
           "200": {
-            "description": "plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Plant"
-                }
-              }
-            }
+            "description": "Environment reset successfully"
           },
           "400": {
-            "description": "unexpected error",
+            "description": "Invalid email format",
             "content": {
               "application/json": {
                 "schema": {
@@ -96,28 +66,52 @@
         }
       }
     },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
+    "/tests/grade": {
+      "post": {
+        "tags": ["Tests & Grading"],
+        "operationId": "gradeTest",
+        "summary": "Grade Test",
+        "description": "Grade a specific test",
+        "requestBody": {
+          "description": "Test details and input data",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "test_id"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "description": "Test account email in format [0-99]@deeptune.com"
+                  },
+                  "test_id": {
+                    "type": "string",
+                    "description": "ID of the test to check"
+                  },
+                  "test_params": {
+                    "type": "object",
+                    "description": "Optional test-specific input data that varies by test type",
+                    "additionalProperties": true
+                  }
+                }
+              }
             }
           }
-        ],
+        },
         "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
+          "200": {
+            "description": "Test grade response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestGrade"
+                }
+              }
+            }
           },
           "400": {
-            "description": "unexpected error",
+            "description": "Invalid request",
             "content": {
               "application/json": {
                 "schema": {
@@ -132,48 +126,59 @@
   },
   "components": {
     "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
+      "TestGrade": {
         "type": "object",
+        "required": [
+          "test_id",
+          "test_name",
+          "instructions",
+          "result",
+          "difficulty"
+        ],
         "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
+          "test_id": {
+            "type": "string",
+            "description": "Unique identifier for the test"
           },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
+          "test_name": {
+            "type": "string",
+            "description": "Human readable name of the test"
+          },
+          "instructions": {
+            "type": "string",
+            "description": "Instructions for completing the test"
+          },
+          "result": {
+            "type": "object",
+            "required": ["status"],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": ["success", "failed"],
+                "description": "Whether the test passed or failed"
+              },
+              "step": {
+                "type": "string",
+                "nullable": true,
+                "description": "Step where the test failed (if applicable)"
+              },
+              "reason": {
+                "type": "string",
+                "nullable": true,
+                "description": "Reason for test failure (if applicable)"
+              }
+            }
+          },
+          "difficulty": {
+            "type": "string",
+            "enum": ["easy", "medium", "hard"],
+            "description": "Difficulty level of the test"
           }
         }
       },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
-          },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
-            }
-          }
-        ]
-      },
       "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
         "type": "object",
+        "required": ["error", "message"],
         "properties": {
           "error": {
             "type": "integer",
@@ -183,12 +188,6 @@
             "type": "string"
           }
         }
-      }
-    },
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
       }
     }
   }
