@@ -531,12 +531,6 @@
           "is_claimed": {
             "type": "boolean",
             "description": "Whether the account has been claimed"
-          },
-          "deleted_at": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true,
-            "description": "Timestamp when the account was deleted, if applicable"
           }
         }
       },
