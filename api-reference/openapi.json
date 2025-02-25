@@ -12,6 +12,10 @@
   ],
   "tags": [
     {
+      "name": "Apps",
+      "description": "Endpoints for managing apps"
+    },
+    {
       "name": "Accounts",
       "description": "Endpoints for resetting test environments"
     },
@@ -21,56 +25,11 @@
     }
   ],
   "paths": {
-    "/accounts/reset": {
-      "post": {
-        "tags": ["Accounts"],
-        "operationId": "resetAccount",
-        "summary": "Reset Account",
-        "description": "Reset a test environment to its original state",
-        "requestBody": {
-          "description": "Account email and app ID to reset",
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": ["email", "app_id"],
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "description": "Test account email in format [0-99]@deeptune.com"
-                  },
-                  "app_id": {
-                    "type": "string",
-                    "description": "ID of the app environment to reset"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Environment reset successfully"
-          },
-          "400": {
-            "description": "Invalid email format",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/tests/{app_id}": {
+    "/apps/{app_id}/tests": {
       "get": {
-        "tags": ["Tests & Grading"],
+        "tags": ["Apps"],
         "operationId": "getTests",
-        "summary": "Get Tests",
+        "summary": "Get Tests by App",
         "description": "Get tests for a specific app",
         "parameters": [
           {
@@ -153,12 +112,283 @@
         }
       }
     },
-    "/tests/grade": {
+    "/apps/{app_id}/accounts": {
+      "get": {
+        "tags": ["Apps"],
+        "operationId": "getAppAccounts",
+        "summary": "Get Accounts by App",
+        "description": "Get all accounts associated with a specific app",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "ID of the app to get accounts for"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of accounts for the app",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["accounts"],
+                  "properties": {
+                    "accounts": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Account"
+                      },
+                      "description": "List of accounts associated with the app"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid app ID or unauthorized access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/apps/{app_id}/accounts/claim": {
+      "post": {
+        "tags": ["Apps"],
+        "operationId": "claimAppAccount",
+        "summary": "Claim Account by App",
+        "description": "Claims the first unclaimed account for a specific app",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "ID of the app to claim an account for"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account claimed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["account"],
+                  "properties": {
+                    "account": {
+                      "$ref": "#/components/schemas/Account",
+                      "description": "The claimed account"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No unclaimed accounts found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accounts/{account_id}/reset": {
+      "post": {
+        "tags": ["Accounts"],
+        "operationId": "resetAccount",
+        "summary": "Reset Account",
+        "description": "Reset a test environment to its original state",
+        "parameters": [
+          {
+            "name": "account_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the account to reset"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Environment reset successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Indicates if the operation was successful"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid account ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accounts/{account_id}/claim": {
+      "post": {
+        "tags": ["Accounts"],
+        "operationId": "claimAccount",
+        "summary": "Claim Account",
+        "description": "Mark an account as claimed",
+        "parameters": [
+          {
+            "name": "account_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the account to claim"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account claimed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "account": {
+                      "$ref": "#/components/schemas/Account",
+                      "description": "Account details"
+                    },
+                    "success": {
+                      "type": "boolean",
+                      "description": "Indicates if the operation was successful"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Account not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accounts/{account_id}/unclaim": {
+      "post": {
+        "tags": ["Accounts"],
+        "operationId": "unclaimAccount",
+        "summary": "Unclaim Account",
+        "description": "Mark an account as unclaimed",
+        "parameters": [
+          {
+            "name": "account_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the account to unclaim"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account unclaimed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "account": {
+                      "$ref": "#/components/schemas/Account",
+                      "description": "Account details"
+                    },
+                    "success": {
+                      "type": "boolean",
+                      "description": "Indicates if the operation was successful"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Account not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tests/{test_id}/grade": {
       "post": {
         "tags": ["Tests & Grading"],
         "operationId": "gradeTest",
         "summary": "Grade Test",
         "description": "Grade a specific test",
+        "parameters": [
+          {
+            "name": "test_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the test to grade"
+          }
+        ],
         "requestBody": {
           "description": "Test details and input data",
           "required": true,
@@ -166,15 +396,11 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["email", "test_id"],
+                "required": ["account_id"],
                 "properties": {
-                  "email": {
+                  "account_id": {
                     "type": "string",
-                    "description": "Test account email in format [0-99]@deeptune.com"
-                  },
-                  "test_id": {
-                    "type": "string",
-                    "description": "ID of the test to check"
+                    "description": "Account ID of the account to grade"
                   },
                   "test_params": {
                     "type": "object",
@@ -260,6 +486,57 @@
             "type": "string",
             "enum": ["easy", "medium", "hard"],
             "description": "Difficulty level of the test"
+          }
+        }
+      },
+      "Account": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "email",
+          "password",
+          "app_id",
+          "workspace_id",
+          "is_claimed"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier for the account"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the account"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email address of the account"
+          },
+          "password": {
+            "type": "string",
+            "description": "Password for the account"
+          },
+          "app_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the app associated with the account"
+          },
+          "workspace_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the workspace associated with the account"
+          },
+          "is_claimed": {
+            "type": "boolean",
+            "description": "Whether the account has been claimed"
+          },
+          "deleted_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Timestamp when the account was deleted, if applicable"
           }
         }
       },
