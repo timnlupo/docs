@@ -439,6 +439,29 @@
   },
   "components": {
     "schemas": {
+      "Test": {
+        "type": "object",
+        "required": ["test_id", "test_name", "instructions", "difficulty"],
+        "properties": {
+          "test_id": {
+            "type": "string",
+            "description": "Unique identifier for the test"
+          },
+          "test_name": {
+            "type": "string",
+            "description": "Human readable name of the test"
+          },
+          "instructions": {
+            "type": "string",
+            "description": "Instructions for completing the test"
+          },
+          "difficulty": {
+            "type": "string",
+            "enum": ["easy", "medium", "hard"],
+            "description": "Difficulty level of the test"
+          }
+        }
+      },
       "TestGrade": {
         "type": "object",
         "required": [
