@@ -57,50 +57,32 @@
                     "tests"
                   ],
                   "properties": {
-                    "num_tests": {
-                      "type": "integer",
-                      "description": "Total number of tests"
-                    },
-                    "num_easy": {
-                      "type": "integer",
-                      "description": "Number of easy difficulty tests"
-                    },
-                    "num_medium": {
-                      "type": "integer",
-                      "description": "Number of medium difficulty tests"
-                    },
-                    "num_hard": {
-                      "type": "integer",
-                      "description": "Number of hard difficulty tests"
-                    },
                     "tests": {
                       "type": "array",
                       "items": {
-                        "type": "object",
-                        "required": [
-                          "test_id",
-                          "test_name",
-                          "instructions",
-                          "difficulty"
-                        ],
-                        "properties": {
-                          "test_id": {
-                            "type": "string",
-                            "description": "Unique identifier for the test"
-                          },
-                          "test_name": {
-                            "type": "string",
-                            "description": "Human readable name of the test"
-                          },
-                          "instructions": {
-                            "type": "string",
-                            "description": "Instructions for completing the test"
-                          },
-                          "difficulty": {
-                            "type": "string",
-                            "enum": ["easy", "medium", "hard"],
-                            "description": "Difficulty level of the test"
-                          }
+                        "$ref": "#/components/schemas/Test"
+                      },
+                      "description": "List of tests for the app"
+                    },
+                    "num_tests": {
+                      "type": "object",
+                      "description": "Count of tests by difficulty",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "description": "Total number of tests"
+                        },
+                        "easy": {
+                          "type": "integer",
+                          "description": "Number of easy difficulty tests"
+                        },
+                        "medium": {
+                          "type": "integer",
+                          "description": "Number of medium difficulty tests"
+                        },
+                        "hard": {
+                          "type": "integer",
+                          "description": "Number of hard difficulty tests"
                         }
                       }
                     }
@@ -441,24 +423,38 @@
     "schemas": {
       "Test": {
         "type": "object",
-        "required": ["test_id", "test_name", "instructions", "difficulty"],
+        "required": [
+          "test_id",
+          "instructions",
+          "explanation",
+          "difficulty",
+          "expects_answer"
+        ],
         "properties": {
           "test_id": {
             "type": "string",
             "description": "Unique identifier for the test"
           },
-          "test_name": {
-            "type": "string",
-            "description": "Human readable name of the test"
-          },
           "instructions": {
             "type": "string",
             "description": "Instructions for completing the test"
+          },
+          "explanation": {
+            "type": "string",
+            "description": "Detailed explanation of how to complete the test"
           },
           "difficulty": {
             "type": "string",
             "enum": ["easy", "medium", "hard"],
             "description": "Difficulty level of the test"
+          },
+          "expects_answer": {
+            "type": "boolean",
+            "description": "Whether the test expects an answer to be returned"
+          },
+          "answer_schema": {
+            "type": "string",
+            "description": "JSON schema format for the expected answer in natural language (for example, {test_ids: list[str]})"
           }
         }
       },
@@ -472,17 +468,9 @@
           "difficulty"
         ],
         "properties": {
-          "test_id": {
-            "type": "string",
-            "description": "Unique identifier for the test"
-          },
-          "test_name": {
-            "type": "string",
-            "description": "Human readable name of the test"
-          },
-          "instructions": {
-            "type": "string",
-            "description": "Instructions for completing the test"
+          "test": {
+            "$ref": "#/components/schemas/Test",
+            "description": "The test that was graded"
           },
           "result": {
             "type": "object",
@@ -504,11 +492,6 @@
                 "description": "Reason for test failure (if applicable)"
               }
             }
-          },
-          "difficulty": {
-            "type": "string",
-            "enum": ["easy", "medium", "hard"],
-            "description": "Difficulty level of the test"
           }
         }
       },
